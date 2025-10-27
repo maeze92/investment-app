@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { User, UserRole } from '@/types/entities';
-import { Role, UUID } from '@/types/enums';
+import { Role, UUID, Permission } from '@/types/enums';
 import { dataAdapter } from '@/lib/storage/DataAdapter';
 import { storageService } from '@/lib/storage/LocalStorageService';
+import { hasPermission, isAdminRole } from '@/lib/admin/permissions';
 
 interface AuthState {
   // State
@@ -27,6 +28,8 @@ interface AuthState {
   canAccessCompany: (companyId: UUID) => boolean;
   getCurrentCompanyId: () => UUID | null;
   getGroupId: () => UUID | null;
+  hasPermission: (permission: Permission) => boolean;
+  isAdmin: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -220,5 +223,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   getGroupId: () => {
     const { selectedRole } = get();
     return selectedRole?.group_id || null;
+  },
+
+  // Check if user has a specific permission
+  hasPermission: (permission: Permission) => {
+    const { userRoles } = get();
+    const roles = userRoles.map((ur) => ur.role);
+    return hasPermission(roles, permission);
+  },
+
+  // Check if user is an admin
+  isAdmin: () => {
+    const { userRoles } = get();
+    return userRoles.some((ur) => isAdminRole(ur.role));
   },
 }));

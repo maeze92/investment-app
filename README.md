@@ -49,6 +49,7 @@ Die App ist bereits mit Demo-Daten ausgestattet. Verwenden Sie diese Zugangsdate
 
 | Rolle | E-Mail | Passwort |
 |-------|--------|----------|
+| System Administrator | admin@demo.de | demo |
 | Verwaltungsrat | vr@demo.de | demo |
 | CFO | cfo@demo.de | demo |
 | Geschäftsführer | gf@demo.de | demo |

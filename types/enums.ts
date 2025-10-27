@@ -2,6 +2,7 @@
 export type UUID = string;
 
 export type Role =
+  | 'system_admin'
   | 'vr_approval'
   | 'vr_viewer'
   | 'cfo'
@@ -66,8 +67,18 @@ export type RateInterval =
   | 'quarterly'
   | 'yearly';
 
+// Permissions for role-based access control
+export type Permission =
+  | 'manage_groups'
+  | 'manage_companies'
+  | 'manage_users'
+  | 'manage_roles'
+  | 'view_audit_logs'
+  | 'manage_system_settings';
+
 // Role Display Names
 export const ROLE_NAMES: Record<Role, string> = {
+  system_admin: 'System Administrator',
   vr_approval: 'Verwaltungsrat (Genehmigung)',
   vr_viewer: 'Verwaltungsrat (Ansicht)',
   cfo: 'CFO',

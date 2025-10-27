@@ -13,6 +13,7 @@ export function Navigation() {
   const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
   const selectedRole = useAuthStore((state) => state.selectedRole);
+  const isAdmin = useAuthStore((state) => state.isAdmin);
   const logout = useAuthStore((state) => state.logout);
 
   if (!user || !selectedRole) {
@@ -37,6 +38,8 @@ export function Navigation() {
     )
       ? [{ href: '/cashflows', label: 'Cashflows' }]
       : []),
+    // Show Admin for system admins
+    ...(isAdmin() ? [{ href: '/dashboard/admin', label: 'Administration' }] : []),
   ];
 
   return (

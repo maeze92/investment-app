@@ -12,6 +12,13 @@ import { useRouter } from 'next/navigation';
 
 const DEMO_USERS = [
   {
+    email: 'admin@demo.de',
+    password: 'demo',
+    role: 'system_admin' as Role,
+    name: 'Admin Demo',
+    description: 'System Administrator',
+  },
+  {
     email: 'vr@demo.de',
     password: 'demo',
     role: 'vr_approval' as Role,
@@ -73,6 +80,7 @@ export function RoleSwitcher() {
 
       // Redirect to role-specific dashboard
       const dashboardRoutes: Record<Role, string> = {
+        system_admin: '/dashboard/admin',
         vr_approval: '/dashboard/vr',
         vr_viewer: '/dashboard/vr',
         cfo: '/dashboard/cfo',
@@ -98,6 +106,7 @@ export function RoleSwitcher() {
 
   const getRoleBadgeColor = (role: Role) => {
     const colors: Record<Role, string> = {
+      system_admin: 'bg-red-500 text-white',
       vr_approval: 'bg-purple-500 text-white',
       vr_viewer: 'bg-purple-300 text-black',
       cfo: 'bg-blue-500 text-white',

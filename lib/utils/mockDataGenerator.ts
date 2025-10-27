@@ -82,6 +82,7 @@ export class MockDataGenerator {
 
     // Add demo users for each role
     const demoRoles: Array<{ email: string; name: string }> = [
+      { email: 'admin@demo.de', name: 'System Administrator' },
       { email: 'vr@demo.de', name: 'Dr. Anna Schmidt (VR)' },
       { email: 'cfo@demo.de', name: 'Thomas Müller (CFO)' },
       { email: 'gf@demo.de', name: 'Sarah Weber (GF)' },
@@ -136,6 +137,7 @@ export class MockDataGenerator {
 
     // Assign demo users their specific roles
     const demoUserMap: Record<string, Role> = {
+      'admin@demo.de': 'system_admin',
       'vr@demo.de': 'vr_approval',
       'cfo@demo.de': 'cfo',
       'gf@demo.de': 'geschaeftsfuehrer',
@@ -149,21 +151,35 @@ export class MockDataGenerator {
       if (demoUserMap[user.email]) {
         // Assign specific role to demo user
         const role = demoUserMap[user.email];
-        const isCompanyLevel = ['geschaeftsfuehrer', 'cashflow_manager', 'buchhaltung'].includes(
-          role
-        );
 
-        userRoles.push({
-          id: generateUUID(),
-          user_id: user.id,
-          company_id: isCompanyLevel
-            ? companies.find((c) => c.group_id === group.id)?.id
-            : undefined,
-          group_id: group.id,
-          role,
-          assigned_at: faker.date.past({ years: 1 }),
-          assigned_by: users[0].id, // First user assigned everyone
-        });
+        // System admin is group-level only
+        if (role === 'system_admin') {
+          userRoles.push({
+            id: generateUUID(),
+            user_id: user.id,
+            company_id: undefined,
+            group_id: group.id,
+            role,
+            assigned_at: faker.date.past({ years: 1 }),
+            assigned_by: user.id, // Self-assigned for first admin
+          });
+        } else {
+          const isCompanyLevel = ['geschaeftsfuehrer', 'cashflow_manager', 'buchhaltung'].includes(
+            role
+          );
+
+          userRoles.push({
+            id: generateUUID(),
+            user_id: user.id,
+            company_id: isCompanyLevel
+              ? companies.find((c) => c.group_id === group.id)?.id
+              : undefined,
+            group_id: group.id,
+            role,
+            assigned_at: faker.date.past({ years: 1 }),
+            assigned_by: users[0].id, // First user assigned everyone
+          });
+        }
       } else {
         // Random role for other users
         const role = faker.helpers.arrayElement(roles);
