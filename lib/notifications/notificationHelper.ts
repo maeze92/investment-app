@@ -27,7 +27,8 @@ export async function triggerInvestmentNotifications(
 
   // Save notifications to storage
   for (const notification of notifications) {
-    await storageService.create<Notification>('notifications', notification as any);
+    const notificationData: Omit<Notification, 'id'> = notification;
+    await storageService.create<Notification>('notifications', notificationData);
   }
 }
 
@@ -45,7 +46,8 @@ export async function triggerCashflowNotifications(
 
   // Save notifications to storage
   for (const notification of notifications) {
-    await storageService.create<Notification>('notifications', notification as any);
+    const notificationData: Omit<Notification, 'id'> = notification;
+    await storageService.create<Notification>('notifications', notificationData);
   }
 }
 
@@ -74,7 +76,8 @@ export async function checkDailyNotifications(): Promise<void> {
     );
 
     if (!isDuplicate) {
-      await storageService.create<Notification>('notifications', notification as any);
+      const notificationData: Omit<Notification, 'id'> = notification;
+      await storageService.create<Notification>('notifications', notificationData);
     }
   }
 }

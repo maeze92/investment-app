@@ -9,7 +9,10 @@
       "Bash(rd /s /q .next)",
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []

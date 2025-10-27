@@ -115,12 +115,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   createInvestment: async (data: CreateInvestmentDTO) => {
     const currentUser = storageService.getDatabase().currentUser;
 
-    const investment = await storageService.create<Investment>('investments', {
+    const investmentData: Omit<Investment, 'id'> = {
       ...data,
       status: 'entwurf',
       created_by: currentUser?.id || 'unknown',
       created_at: new Date(),
-    } as any);
+      start_date: typeof data.start_date === 'string' ? new Date(data.start_date) : data.start_date,
+      end_date: data.end_date
+        ? (typeof data.end_date === 'string' ? new Date(data.end_date) : data.end_date)
+        : undefined,
+      metadata: data.metadata || {},
+    };
+
+    const investment = await storageService.create<Investment>('investments', investmentData);
 
     // Generate cashflows based on payment structure
     const { cashflows, validation, errors } = generateCashflowsForInvestment(investment);
@@ -131,7 +138,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     // Create cashflows in storage
     for (const cashflowData of cashflows) {
-      await storageService.create<Cashflow>('cashflows', cashflowData as any);
+      await storageService.create<Cashflow>('cashflows', cashflowData);
     }
 
     await get().refresh();
@@ -140,10 +147,27 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Update Investment
   updateInvestment: async (id: UUID, data: UpdateInvestmentDTO) => {
-    const updated = await storageService.update<Investment>('investments', id, {
-      ...data,
+    const updateData: Partial<Investment> = {
       updated_at: new Date(),
-    } as any);
+    };
+
+    // Copy fields from data, converting dates as needed
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.category !== undefined) updateData.category = data.category;
+    if (data.total_amount !== undefined) updateData.total_amount = data.total_amount;
+    if (data.metadata !== undefined) updateData.metadata = data.metadata;
+    if (data.payment_structure !== undefined) updateData.payment_structure = data.payment_structure;
+
+    // Convert date strings to Date objects if present
+    if (data.start_date) {
+      updateData.start_date = typeof data.start_date === 'string' ? new Date(data.start_date) : data.start_date;
+    }
+    if (data.end_date) {
+      updateData.end_date = typeof data.end_date === 'string' ? new Date(data.end_date) : data.end_date;
+    }
+
+    const updated = await storageService.update<Investment>('investments', id, updateData);
 
     if (!updated) throw new Error('Investment not found');
 
@@ -158,7 +182,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       // Generate new cashflows
       const { cashflows } = generateCashflowsForInvestment(updated);
       for (const cashflowData of cashflows) {
-        await storageService.create<Cashflow>('cashflows', cashflowData as any);
+        await storageService.create<Cashflow>('cashflows', cashflowData);
       }
     }
 
@@ -183,18 +207,21 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Submit Investment for Approval
   submitInvestmentForApproval: async (id: UUID) => {
-    await storageService.update<Investment>('investments', id, {
-      status: 'zur_genehmigung' as InvestmentStatus,
+    const updateData: Partial<Investment> = {
+      status: 'zur_genehmigung',
       submitted_at: new Date(),
-    } as any);
+    };
+
+    await storageService.update<Investment>('investments', id, updateData);
 
     // Update associated cashflows
     const cashflows = get().cashflows.filter((cf) => cf.investment_id === id);
 
     for (const cf of cashflows) {
-      await storageService.update<Cashflow>('cashflows', cf.id, {
-        status: 'ausstehend' as CashflowStatus,
-      } as any);
+      const cashflowUpdate: Partial<Cashflow> = {
+        status: 'ausstehend',
+      };
+      await storageService.update<Cashflow>('cashflows', cf.id, cashflowUpdate);
     }
 
     await get().refresh();
@@ -210,18 +237,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Approve Investment
   approveInvestment: async (id: UUID, userId: UUID, comment?: string) => {
     // Update investment status
-    await storageService.update<Investment>('investments', id, {
-      status: 'genehmigt' as InvestmentStatus,
-    } as any);
+    const updateData: Partial<Investment> = {
+      status: 'genehmigt',
+    };
+    await storageService.update<Investment>('investments', id, updateData);
 
     // Create approval record
-    await storageService.create<InvestmentApproval>('investmentApprovals', {
+    const approvalData: Omit<InvestmentApproval, 'id'> = {
       investment_id: id,
       approved_by: userId,
       decision: 'genehmigt',
       comment,
       decided_at: new Date(),
-    } as any);
+    };
+    await storageService.create<InvestmentApproval>('investmentApprovals', approvalData);
 
     await get().refresh();
 
@@ -236,26 +265,29 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Reject Investment
   rejectInvestment: async (id: UUID, userId: UUID, comment?: string) => {
     // Update investment status
-    await storageService.update<Investment>('investments', id, {
-      status: 'abgelehnt' as InvestmentStatus,
-    } as any);
+    const updateData: Partial<Investment> = {
+      status: 'abgelehnt',
+    };
+    await storageService.update<Investment>('investments', id, updateData);
 
     // Create approval record
-    await storageService.create<InvestmentApproval>('investmentApprovals', {
+    const approvalData: Omit<InvestmentApproval, 'id'> = {
       investment_id: id,
       approved_by: userId,
       decision: 'abgelehnt',
       comment,
       decided_at: new Date(),
-    } as any);
+    };
+    await storageService.create<InvestmentApproval>('investmentApprovals', approvalData);
 
     // Update associated cashflows
     const cashflows = get().cashflows.filter((cf) => cf.investment_id === id);
 
     for (const cf of cashflows) {
-      await storageService.update<Cashflow>('cashflows', cf.id, {
-        status: 'storniert' as CashflowStatus,
-      } as any);
+      const cashflowUpdate: Partial<Cashflow> = {
+        status: 'storniert',
+      };
+      await storageService.update<Cashflow>('cashflows', cf.id, cashflowUpdate);
     }
 
     await get().refresh();
@@ -270,12 +302,13 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Confirm Cashflow (Cashflow Manager)
   confirmCashflowCM: async (id: UUID, userId: UUID, comment?: string) => {
-    await storageService.update<Cashflow>('cashflows', id, {
-      status: 'vorbestaetigt' as CashflowStatus,
+    const updateData: Partial<Cashflow> = {
+      status: 'vorbestaetigt',
       confirmed_by_cm: userId,
       confirmed_at_cm: new Date(),
       cm_comment: comment,
-    } as any);
+    };
+    await storageService.update<Cashflow>('cashflows', id, updateData);
 
     await get().refresh();
 
@@ -293,12 +326,13 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Confirm Cashflow (Geschäftsführer)
   confirmCashflowGF: async (id: UUID, userId: UUID, comment?: string) => {
-    await storageService.update<Cashflow>('cashflows', id, {
-      status: 'bestaetigt' as CashflowStatus,
+    const updateData: Partial<Cashflow> = {
+      status: 'bestaetigt',
       confirmed_by_gf: userId,
       confirmed_at_gf: new Date(),
       gf_comment: comment,
-    } as any);
+    };
+    await storageService.update<Cashflow>('cashflows', id, updateData);
 
     await get().refresh();
   },
@@ -309,14 +343,15 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     if (!cashflow) throw new Error('Cashflow not found');
 
-    await storageService.update<Cashflow>('cashflows', id, {
-      status: 'verschoben' as CashflowStatus,
+    const updateData: Partial<Cashflow> = {
+      status: 'verschoben',
       custom_due_date: newDate,
       original_due_date: cashflow.due_date,
       postponed_by: userId,
       postponed_at: new Date(),
       postpone_reason: reason,
-    } as any);
+    };
+    await storageService.update<Cashflow>('cashflows', id, updateData);
 
     await get().refresh();
 
@@ -334,10 +369,11 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Mark Notification as Read
   markNotificationAsRead: async (id: UUID) => {
-    await storageService.update<Notification>('notifications', id, {
+    const updateData: Partial<Notification> = {
       read: true,
       read_at: new Date(),
-    } as any);
+    };
+    await storageService.update<Notification>('notifications', id, updateData);
 
     await get().refresh();
   },

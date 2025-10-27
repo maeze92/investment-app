@@ -59,6 +59,7 @@ export function InvestmentWizard({
   const user = useAuthStore((state) => state.user);
   const createInvestment = useAppStore((state) => state.createInvestment);
   const updateInvestment = useAppStore((state) => state.updateInvestment);
+  const submitInvestmentForApproval = useAppStore((state) => state.submitInvestmentForApproval);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [wizardData, setWizardData] = useState<WizardData>(() => {
@@ -120,8 +121,7 @@ export function InvestmentWizard({
 
         // If submitting for approval, update status
         if (action === 'submit') {
-          // TODO: Call submitInvestmentForApproval
-          // await submitInvestmentForApproval(existingInvestment.id);
+          await submitInvestmentForApproval(existingInvestment.id);
         }
 
         // Redirect to investment details
@@ -147,8 +147,7 @@ export function InvestmentWizard({
 
         // If submitting for approval, update status
         if (action === 'submit') {
-          // TODO: Call submitInvestmentForApproval
-          // await submitInvestmentForApproval(investment.id);
+          await submitInvestmentForApproval(investment.id);
         }
 
         // Redirect to investment details or list

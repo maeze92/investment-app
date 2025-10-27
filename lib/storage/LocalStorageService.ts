@@ -65,6 +65,43 @@ export class LocalStorageService {
   }
 
   /**
+   * Recursively convert date strings to Date objects
+   */
+  private convertDates(obj: any): any {
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+
+    // Handle Date strings (ISO 8601 format)
+    if (typeof obj === 'string') {
+      // Check if string matches ISO date format
+      const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+      if (isoDateRegex.test(obj)) {
+        return new Date(obj);
+      }
+      return obj;
+    }
+
+    // Handle arrays
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.convertDates(item));
+    }
+
+    // Handle objects
+    if (typeof obj === 'object') {
+      const converted: any = {};
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          converted[key] = this.convertDates(obj[key]);
+        }
+      }
+      return converted;
+    }
+
+    return obj;
+  }
+
+  /**
    * Load data from localStorage
    */
   public async load(): Promise<LocalDatabase> {
@@ -80,10 +117,10 @@ export class LocalStorageService {
 
       const data = JSON.parse(stored);
 
-      // Convert date strings back to Date objects
-      data.lastUpdated = new Date(data.lastUpdated);
+      // Convert all date strings back to Date objects recursively
+      const converted = this.convertDates(data);
 
-      return data as LocalDatabase;
+      return converted as LocalDatabase;
     } catch (error) {
       console.error('Failed to load from localStorage:', error);
       return this.getEmptyDatabase();
@@ -134,15 +171,16 @@ export class LocalStorageService {
 
     try {
       if (data) {
-        // Restore from provided data
-        this.cache = data;
+        // Restore from provided data and convert dates
+        this.cache = this.convertDates(data);
       } else {
         // Restore from backup
         const backup = localStorage.getItem(this.BACKUP_KEY);
         if (!backup) {
           throw new Error('No backup found');
         }
-        this.cache = JSON.parse(backup);
+        const parsed = JSON.parse(backup);
+        this.cache = this.convertDates(parsed);
       }
 
       await this.save();
@@ -282,7 +320,8 @@ export class LocalStorageService {
    */
   public async importFromJSON(json: string): Promise<void> {
     try {
-      const data = JSON.parse(json) as LocalDatabase;
+      const parsed = JSON.parse(json);
+      const data = this.convertDates(parsed) as LocalDatabase;
       await this.restore(data);
     } catch (error) {
       console.error('Failed to import data:', error);
