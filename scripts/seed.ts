@@ -30,7 +30,7 @@ async function seed() {
     console.log(`   Investments: ${mockData.investments.length}`);
     console.log(`   Cashflows: ${mockData.cashflows.length}`);
     console.log('\n🔑 Demo Login Credentials:');
-    console.log('   Email: vr@demo.de, cfo@demo.de, gf@demo.de, cm@demo.de, buchhaltung@demo.de');
+    console.log('   Email: admin@demo.de, vr@demo.de, cfo@demo.de, gf@demo.de, cm@demo.de, buchhaltung@demo.de');
     console.log('   Password: demo');
 
     process.exit(0);

@@ -183,6 +183,15 @@ export default function LoginPage() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => quickLogin('admin@demo.de')}
+                disabled={isLoading || isEmpty}
+                className="col-span-2 bg-red-50 hover:bg-red-100 border-red-200"
+              >
+                System Administrator
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => quickLogin('vr@demo.de')}
                 disabled={isLoading || isEmpty}
               >
