@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAdminStore } from '@/stores/useAdminStore';
+import { Navigation } from '@/components/layout/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -73,14 +74,18 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">System Administration</h1>
-        <p className="text-muted-foreground mt-1">
-          Verwaltung von Mandanten, Unternehmen, Benutzern und Rollen
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="space-y-6">
+          {/* Header */}
+          <div>
+            <h1 className="text-3xl font-bold">System Administration</h1>
+            <p className="text-muted-foreground mt-1">
+              Verwaltung von Mandanten, Unternehmen, Benutzern und Rollen
+            </p>
+          </div>
 
       {/* System Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -211,6 +216,8 @@ export default function AdminDashboardPage() {
           </Link>
         </CardContent>
       </Card>
+        </div>
+      </main>
     </div>
   );
 }

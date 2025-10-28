@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAdminStore } from '@/stores/useAdminStore';
+import { Navigation } from '@/components/layout/Navigation';
 import { Company } from '@/types/entities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -103,22 +104,26 @@ export default function CompaniesManagementPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Building className="h-8 w-8" />
-            Unternehmensverwaltung
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Erstellen und verwalten Sie Subfirmen
-          </p>
-        </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Neues Unternehmen
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold flex items-center gap-2">
+                <Building className="h-8 w-8" />
+                Unternehmensverwaltung
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Erstellen und verwalten Sie Subfirmen
+              </p>
+            </div>
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Neues Unternehmen
+            </Button>
+          </div>
 
       <Card>
         <CardHeader>
@@ -193,6 +198,8 @@ export default function CompaniesManagementPage() {
           onConfirm={handleDelete}
         />
       )}
+        </div>
+      </main>
     </div>
   );
 }

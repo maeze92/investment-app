@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAdminStore } from '@/stores/useAdminStore';
+import { Navigation } from '@/components/layout/Navigation';
 import { User, UserRole } from '@/types/entities';
 import { Role, ROLE_NAMES } from '@/types/enums';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -114,22 +115,26 @@ export default function RolesManagementPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Shield className="h-8 w-8" />
-            Rollenverwaltung
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Rollen an Benutzer zuweisen und verwalten
-          </p>
-        </div>
-        <Button onClick={() => setShowAssignDialog(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Rolle zuweisen
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold flex items-center gap-2">
+                <Shield className="h-8 w-8" />
+                Rollenverwaltung
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Rollen an Benutzer zuweisen und verwalten
+              </p>
+            </div>
+            <Button onClick={() => setShowAssignDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Rolle zuweisen
+            </Button>
+          </div>
 
       <Card>
         <CardHeader>
@@ -282,6 +287,8 @@ export default function RolesManagementPage() {
           onConfirm={handleRevoke}
         />
       )}
+        </div>
+      </main>
     </div>
   );
 }
