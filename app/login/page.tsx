@@ -65,6 +65,22 @@ export default function LoginPage() {
     }
 
     if (errorMsg.includes('INVALID_CREDENTIALS') || errorMsg.includes('Invalid credentials')) {
+      // Special handling for admin user - might indicate missing seed data
+      if (email === 'admin@demo.de' || email.includes('@demo.de')) {
+        return {
+          type: 'warning' as const,
+          title: 'Benutzer nicht gefunden',
+          message: 'Dieser Demo-Benutzer existiert nicht in der Datenbank. Möglicherweise wurden die Mock-Daten noch nicht generiert.',
+          action: (
+            <Link href="/seed">
+              <Button size="sm" className="mt-2 w-full">
+                Jetzt Mock-Daten generieren →
+              </Button>
+            </Link>
+          ),
+        };
+      }
+
       return {
         type: 'destructive' as const,
         title: 'Anmeldung fehlgeschlagen',
@@ -93,16 +109,16 @@ export default function LoginPage() {
 
         {/* Warning wenn keine Daten vorhanden */}
         {!checkingStorage && isEmpty && (
-          <Alert variant="warning">
-            <AlertTitle>⚠️ Keine Daten vorhanden</AlertTitle>
+          <Alert variant="warning" className="border-2 border-orange-300">
+            <AlertTitle className="text-lg font-bold">⚠️ Datenbank ist leer</AlertTitle>
             <AlertDescription>
               <p className="mb-3">
-                Die Datenbank ist leer. Bitte generieren Sie zuerst Mock-Daten, um die Anwendung
-                zu testen.
+                Es wurden noch keine Mock-Daten generiert. Bitte klicken Sie auf den Button unten,
+                um Testdaten (inkl. Admin-User) zu erstellen.
               </p>
               <Link href="/seed">
-                <Button size="sm" variant="outline" className="w-full">
-                  Mock-Daten generieren →
+                <Button size="default" className="w-full bg-orange-500 hover:bg-orange-600">
+                  ✨ Jetzt Mock-Daten generieren
                 </Button>
               </Link>
             </AlertDescription>
