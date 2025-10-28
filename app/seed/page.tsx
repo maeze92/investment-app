@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { storageService } from '@/lib/storage/LocalStorageService';
-import { mockDataGenerator } from '@/lib/utils/mockDataGenerator';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -24,6 +23,9 @@ export default function SeedPage() {
 
       // Create backup of existing data
       await storageService.backup();
+
+      // Dynamically import mockDataGenerator to avoid SSR issues with faker.js
+      const { mockDataGenerator } = await import('@/lib/utils/mockDataGenerator');
 
       // Generate mock data
       const mockData = mockDataGenerator.seedDatabase();
@@ -100,6 +102,8 @@ export default function SeedPage() {
                 <div className="space-y-2">
                   <h3 className="font-semibold">Demo-Login Zugänge:</h3>
                   <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-muted p-3 rounded">
+                    <div className="col-span-2 font-bold text-red-600">admin@demo.de</div>
+                    <div className="col-span-2">demo</div>
                     <div>vr@demo.de</div>
                     <div>demo</div>
                     <div>cfo@demo.de</div>
